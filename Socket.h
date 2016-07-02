@@ -1,17 +1,23 @@
 
+#include "Buffer.h"
+#include <memory>
+
 
 class Socket
 {
 public:
-    Socket(){}
-    ~Socket(){}
+    Socket(int fd);
+    ~Socket();
 
-    void read();
-    void write();
+    void read(std::shared_ptr<Buffer> buffer);
+    void write(std::shared_ptr<Buufer> buffer);
 
-    int get_fd();
+    inline int get_fd()
+    {
+        return fd_;
+    }
 private:
-    int fd;
+    int fd_;
 }
 
 

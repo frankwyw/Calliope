@@ -1,4 +1,5 @@
 #include "Connection.h"
+#include <functional>
 
 //  0,passive connection
 //  1,active connection
@@ -35,6 +36,20 @@ private:
     std::function<void()> func_;
     Connection* conn_;
     Reactor* reactor;
-
+    Socket* socket_ ;
     Event_Type type;
+    int nice;
+}
+
+std::less<Event>
+struct less
+{
+    constexpr bool operator() (const Event& e1, const Event e2)
+    {
+        if(e1.nice < e2.nice)
+        {
+            return true;
+        }
+        return false;
+    }
 }

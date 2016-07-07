@@ -1,6 +1,9 @@
-#include "Thread_pool.cpp"
+#include "Thread_pool.h"
+#include "Event.h"
 
-Thread_pool::Thread_pool(){}
+
+namespace honoka
+{
 
 Thread_pool::~Thread_pool(){}
 
@@ -9,7 +12,7 @@ void Thread_pool::add_event(std::shared_ptr<Event> event)
     event_queue.push(event);
 }
 
-Thread_pool::Thread_pool_(int size = 1):size_(size)
+Thread_pool::Thread_pool(int size = 1):size_(size)
 {
     for(int i = 0; i < size_; ++i)
     {
@@ -18,19 +21,19 @@ Thread_pool::Thread_pool_(int size = 1):size_(size)
             {
                 for(;;)
                 {
-                    std::shared_ptr<Event> p_event;
+                    std::shared_ptr<Event> p_event_ptr;
 
                     {
-                        std::unique_lock<std::mutex> lock(this->queue_mutex);
-                        this->condition.wait(lock,
+                        std::unique_lock<std::mutex> lock_(this->queue_mutex);
+                        this->cond_var.wait(lock_,
                             [this]{ return this->stop || !this->event_queue.empty(); });
                         if(this->stop && this->event_queue.empty())
                             return;
-                        p_event = std::move(this->event_queue.front());
-                        this->tasks.pop();
+                        p_event_ptr = this->event_queue.top();
+                        this->event_queue.pop();
                     }
 
-                    p_event->handle();
+                    p_event_ptr->handle();
                 }
             });
     }
@@ -38,22 +41,25 @@ Thread_pool::Thread_pool_(int size = 1):size_(size)
 
 void Thread_pool::stop()
 {
-    std::unique_lock<std::mutex> lock(this->queue_mutex);
+    std::unique_lock<std::mutex> lock_(queue_mutex);
     stop = true;
 }
+
 void Thread_pool::go_on()
 {
-    std::unique_lock<std::mutex> lock(this->queue_mutex);
+    std::unique_lock<std::mutex> lock_(queue_mutex);
     stop = false;
 }
 
-void shutdown()
+void Thread_pool::shutdown()
 {
     {
-        std::unique_lock<std::mutex> lock(queue_mutex);
+        std::unique_lock<std::mutex> lock_(queue_mutex);
         stop = true;
     }
-    condition.notify_all();
-    for(std::thread &worker: workers)
-        worker.join();
+    cond_var.notify_all();
+    for(std::thread &thread_: threads)
+        thread_.join();
+}
+
 }

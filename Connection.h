@@ -1,6 +1,8 @@
-#include "Socket.h"
-#include "Event.h"
+#ifndef __CONNECTION__H__
+#define __CONNECTION__H__
+
 #include <vector>
+#include "Buffer.h"
 
 //  0,passive connection
 //  1,active connection
@@ -10,22 +12,36 @@
 //  5,active close
 //  6,timeout
 //  vector中的6个事件回调，默认指向一个初始化表（共享模式？！）
-
-class Connection
+namespace honoka
 {
-public:
-    void passive_conn();
-    void active_conn();
-    void read();
-    void write();
-    void passive_close();
-    void active_close();
-    void timeout();
-private:
-    Socket* socket;
-    Buffer buffer;
-    Reacotr* reacotr;
-//    Socket socket_;
-//    std::vector<std::shared_ptr<Event>> cb;
+    class Socket;
+    class Event;
+    class Buffer;
+    class Reactor;
 
+    class Connection
+    {
+    public:
+
+        std::shared_ptr<Socket> get_socket()
+        {
+            return socket_;
+        }
+
+        Buffer& get_buffer()
+        {
+            return buffer_;
+        }
+
+        Connection(Reactor* reactor, std::shared_ptr<Socket> socket);
+    private:
+        std::shared_ptr<Socket> socket_;
+        Buffer buffer_;
+        Reactor* reactor_;
+    //    Socket socket_;
+    //    std::vector<std::shared_ptr<Event>> cb;
+
+    };
 }
+
+#endif

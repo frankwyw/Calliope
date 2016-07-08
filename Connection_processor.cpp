@@ -47,17 +47,17 @@ void Connection_processor::write(std::shared_ptr<Connection> conn)
 void Connection_processor::passive_close(std::shared_ptr<Connection> conn)
 {
     auto tmp_socket = conn->get_socket();
-    reactor_->del_listen(tmp_socket->get_fd());
+    reactor_->del_listen(tmp_socket);
 }
 void Connection_processor::active_close(std::shared_ptr<Connection> conn)
 {
     auto tmp_socket = conn->get_socket();
-    reactor_->del_listen(tmp_socket->get_fd());
+    reactor_->del_listen(tmp_socket);
 }
 void Connection_processor::timeout(std::shared_ptr<Connection> conn)
 {
     auto tmp_socket = conn->get_socket();
-    reactor_->del_wait(tmp_socket);
+    reactor_->del_wait(tmp_socket->get_fd());
 }
 
 }

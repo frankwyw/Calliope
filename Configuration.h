@@ -1,11 +1,23 @@
+#ifndef __CONFIGURATION__H__
+#define __CONFIGURATION__H__
+
+#include <string>
 #include "Singleton.hpp"
 #include "3rd party/json.hpp"
 
-class Configuration : public json,  public Singleton<Configuration>
+
+namespace honoka
 {
-public:
-    Configuration();
-    ~Configuration();
-//应当将其初始化为某个默认json
-    void init();
-};
+    class Configuration : public nlohmann::json, public Singleton<Configuration>
+    {
+    public:
+        Configuration();
+        ~Configuration();
+    //应当将其初始化为某个默认json
+        void init();
+	void init(std::string filename);
+	void init(char* filename);
+    };
+}
+
+#endif

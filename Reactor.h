@@ -1,50 +1,63 @@
-#include "Epoller.h"
-#include "Configuration.h"
-#include "Thread_pool.h"
-#include "Socket.h"
-#include "Connection_processor.h"
+#ifndef __REACTOR__H__
+#define __REACTOR__H__
 
-class Reactor
+#include <queue>
+#include <map>
+#include <memory>
+
+#include "Event_Type.hpp"
+
+namespace honoka
 {
-public:
+    class Epoller;
+    class Configuration;
+    class Thread_pool;
+    class Socket;
+    class Connection_processor;
+    class Event;
+    class Connection;
 
-    //为epoller添加监听事件
-    //新链接更新socket_conn
-    void add_wait(int );
-
-    void del_wait(int );
-
-    //添加监听套接字
-    inline void add_listen(int )
+    class Reactor
     {
-        epoller->add_listen(socket);
-    }
+    public:
 
-    inline void add_event(std::shared_ptr<Event> event)
-    {
-        thread_pool_->add_event(event);
-    }
+        //为epoller添加监听事件
+        //新链接更新socket_conn
+        void add_wait(std::shared_ptr<Socket> socket);
 
-    std::shared_ptr<Event> create_event(int fd, int type);
+        void del_wait(int fd);
 
 
-    //运行epoller
-    void loop();
+        //添加监听套接字
+        void add_listen(std::shared_ptr<Socket> socket);
+        void del_listen(std::shared_ptr<Socket> socket);
 
-    void set_conn_process();
-    Connection_processor& get_conn_process();
+        void add_event(std::shared_ptr<Event> event);
 
-private:
-    //添加event到Thread_pool处理
 
-    bool upate_fd_sockets_conns(int fd);
+        std::shared_ptr<Event> create_event(std::shared_ptr<Socket> socket, Event_Type type);
 
-    std::shared_ptr<Connection_processor> conn_processor;
 
-    Configuration*  config_;
-    std::shared_ptr<Epoller> epoller_;
+        //运行epoller
+        void loop();
 
-    std::map<int, std::pair<std::shared_ptr<Socket>, std::shared_ptr<Connection>>>   fd_sockets_conns;
-    std::shared_ptr<Thread_pool> thread_pool_;
-    std::Thread_priority_queue<Socket*> time_heap;
+        void set_conn_process();
+        Connection_processor* get_conn_process();
+
+    private:
+        //添加event到Thread_pool处理
+	std::shared_ptr<Event> create_event(int fd, Event_Type type);
+
+        std::shared_ptr<Connection_processor> conn_processor_;
+	
+
+        Configuration*  config_;
+        std::shared_ptr<Epoller> epoller_;
+
+        std::map<int, std::shared_ptr<Connection>>   fd_sockets_conns;
+        std::shared_ptr<Thread_pool> thread_pool_;
+        std::priority_queue<Socket*> time_heap;
+    };
 }
+
+#endif

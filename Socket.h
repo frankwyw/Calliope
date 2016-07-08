@@ -1,32 +1,40 @@
+#ifndef __SOCKET__H__
+#define __SOCKET__H__
 
-#include "Buffer.h"
 #include <memory>
-
-
-class Socket
+namespace honoka
 {
-public:
-    Socket(int fd);
-    ~Socket();
+    class Buffer;
 
-    void read(std::shared_ptr<Buffer> buffer);
-    void write(std::shared_ptr<Buufer> buffer);
-
-    inline int get_fd()
+    class Socket
     {
-        return fd_;
-    }
-private:
-    int fd_;
+    public:
+        Socket(int fd);
+        ~Socket();
+
+        void read();
+        void write();
+
+        int accept();
+
+        inline int get_fd()
+        {
+            return fd_;
+        }
+    private:
+        int fd_;
+    };
+
+
+    class Time_Socket : public Socket
+    {
+    public:
+        int get_time();
+        void set_time();
+
+    private:
+        int time;
+    };
 }
 
-
-class Time_Socket : public Socket
-{
-public:
-    int get_time();
-    void set_time();
-
-private:
-    int time;
-}
+#endif

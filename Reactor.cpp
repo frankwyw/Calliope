@@ -8,10 +8,15 @@
 #include "Socket.h"
 #include "Connection_processor.h"
 #include "Event.h"
+#include "Event_Type.hpp"
+#include "Connection.h"
+
 
 
 namespace honoka
 {
+
+
 void Reactor::add_wait(std::shared_ptr<Socket> socket)
 {
     int fd = socket->get_fd();
@@ -47,16 +52,17 @@ void Reactor::loop()
 
 }
 
-std::shared_ptr<Event> Reactor::create_event(int fd, int type)
+std::shared_ptr<Event> Reactor::create_event(int fd, Event_Type type)
 {
     auto ite = fd_sockets_conns.find(fd);
     if(ite == fd_sockets_conns.end())
     {
-        auto tmp_conn = std::make_shared<Connection>(this, std::make_shared<Socket>(fd));
-//        ite = fd_sockets_conns.emplace(fd, tmp_conn);
+	auto socket = std::make_shared<Socket>(fd);
+        auto tmp_conn = std::make_shared<Connection>(this, socket);
+	ite = fd_sockets_conns.emplace(fd, tmp_conn).first;
     }
 
-    auto tmp = std::make_shared<Event>(this, ite->second(), type);
+    auto tmp = std::make_shared<Event>(this, ite->second, type);
 
     return tmp;
 }

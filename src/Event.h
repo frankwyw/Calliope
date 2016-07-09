@@ -34,10 +34,10 @@ namespace honoka
 
         void handle();
 
-	bool operator< (const Event& e2) const
-	{
-	     return nice < e2.nice;
-	}
+	    bool operator< (const Event& e2) const
+	    {
+	        return nice < e2.nice;
+	    }
 
         Event(Reactor* reactor, std::shared_ptr<Connection> conn, Event_Type type);
     private:
@@ -52,7 +52,7 @@ namespace honoka
     };
 
 
-   
+
 }
 
 

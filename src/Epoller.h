@@ -4,6 +4,7 @@
 #include <set>
 #include <map>
 #include <memory>
+#include <mutex>
 
 namespace honoka
 {
@@ -11,7 +12,7 @@ namespace honoka
     class Reactor;
     class Thread_pool;
     class Connection;
-    
+
 
     class Epoller
     {
@@ -35,7 +36,10 @@ namespace honoka
         //如果套接字可读，创建新读事件，如上。。。
         void run(int delay_time, Thread_pool* thread_pool_, std::map<int, std::shared_ptr<Connection>>&  socket_conns);
 
+
+
     private:
+        void set_epoll_ev(struct epoll_event* ev);
 
         int epoll_fd;
         int cur_fds_num;
@@ -43,6 +47,8 @@ namespace honoka
         std::set<int> listenning_fds_;
 
         Reactor* reactor_;
+
+        std::mutex_;
     };
 }
 

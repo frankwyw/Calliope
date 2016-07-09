@@ -2,6 +2,7 @@
 #define __CONNECTION__PROCESSOR__H__
 
 #include <memory>
+#include "Event_Type.hpp"
 
 namespace honoka
 {
@@ -12,9 +13,12 @@ namespace honoka
     {
     public:
 
-        
+
         Connection_processor(Reactor* reactor);
-	void handle(std::shared_ptr<Connection> conn);
+        ~Connection_processor();
+	    void handle(std::shared_ptr<Connection> conn, Event_Type type);
+
+        void set_cb(std::function<void (Connection_processor*, std::shared_ptr<Connection>)> cb, int i);
 
     private:
         void passive_conn(std::shared_ptr<Connection> conn);
@@ -24,6 +28,8 @@ namespace honoka
         void passive_close(std::shared_ptr<Connection> conn);
         void active_close(std::shared_ptr<Connection> conn);
         void timeout(std::shared_ptr<Connection> conn);
+
+        std::function<void (Connection_processor*, std::shared_ptr<Connection>)> cb_[7];
 
         Reactor* reactor_;
     };

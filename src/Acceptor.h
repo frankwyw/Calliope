@@ -26,11 +26,7 @@ namespace honoka
 
     private:
         int create_socket(int domain, int type);
-        void bind_socket_address(int listen_fd, int addr, int port, int domain);
-        void listenning_socket(int listen_fd);
 //      void add_wait(int config_endian_i);
-
-	void add_socket_listen(int listen_fd);
 
         Configuration*  config_;
         Reactor*        reactor_;

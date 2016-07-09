@@ -15,8 +15,12 @@ namespace honoka
         ~Configuration();
     //应当将其初始化为某个默认json
         void init();
-	void init(std::string filename);
-	void init(char* filename);
+	    void init(std::string filename);
+	    void init(char* filename);
+
+        int get_socket_num();
+
+        auto&& get_socket_config(int i);
     };
 }
 

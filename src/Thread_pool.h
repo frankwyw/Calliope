@@ -14,7 +14,7 @@ namespace honoka
 
 namespace std
 {
-template<>
+    template<>
 	struct less<std::shared_ptr<honoka::Event>>
 	{
 		bool operator()(const std::shared_ptr<honoka::Event>&e1, const std::shared_ptr<honoka::Event>&e2) const;
@@ -23,7 +23,7 @@ template<>
 
 namespace honoka
 {
-    
+
 
     class Thread_pool
     {
@@ -34,7 +34,7 @@ namespace honoka
         void shutdown();
 
         Thread_pool(int size);
-	~Thread_pool();
+	    ~Thread_pool();
     private:
         std::priority_queue<std::shared_ptr<Event>> event_queue;
         std::condition_variable cond_var;

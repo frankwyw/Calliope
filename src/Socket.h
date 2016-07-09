@@ -10,12 +10,17 @@ namespace honoka
     {
     public:
         Socket(int fd);
+
+
         ~Socket();
 
-        void read();
-        void write();
-
         int accept();
+
+        void set_servaddr(struct sockaddr  servaddr);
+        struct sockaddr* get_servaddr_ptr();
+
+        void set_len(int len);
+        int get_len();
 
         inline int get_fd()
         {
@@ -23,6 +28,10 @@ namespace honoka
         }
     private:
         int fd_;
+
+        struct sockaddr  servaddr_;
+        int len_;
+
     };
 
 
@@ -34,6 +43,7 @@ namespace honoka
 
     private:
         int time;
+
     };
 }
 

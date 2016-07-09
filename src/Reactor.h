@@ -13,13 +13,16 @@ namespace honoka
     class Configuration;
     class Thread_pool;
     class Socket;
-    class Connection_processor;
     class Event;
     class Connection;
+    class Connection_processor;
 
     class Reactor
     {
     public:
+
+        Reactor();
+        ~Reactor();
 
         //为epoller添加监听事件
         //新链接更新socket_conn
@@ -34,22 +37,20 @@ namespace honoka
 
         void add_event(std::shared_ptr<Event> event);
 
+        void set_cb(std::function<void (Connection_processor*, std::shared_ptr<Connection>)> cb, Event_Type type);
 
-        std::shared_ptr<Event> create_event(std::shared_ptr<Socket> socket, Event_Type type);
+
+//        std::shared_ptr<Event> create_event(std::shared_ptr<Socket> socket, Event_Type type);
 
 
         //运行epoller
         void loop();
 
-        void set_conn_process();
-        Connection_processor* get_conn_process();
+        //添加event到Thread_pool处理
+        std::shared_ptr<Event> create_event(int fd, Event_Type type);
 
     private:
-        //添加event到Thread_pool处理
-	std::shared_ptr<Event> create_event(int fd, Event_Type type);
 
-        std::shared_ptr<Connection_processor> conn_processor_;
-	
 
         Configuration*  config_;
         std::shared_ptr<Epoller> epoller_;
@@ -57,6 +58,7 @@ namespace honoka
         std::map<int, std::shared_ptr<Connection>>   fd_sockets_conns;
         std::shared_ptr<Thread_pool> thread_pool_;
         std::priority_queue<Socket*> time_heap;
+        std::shared_ptr<Connection> conn_processor_;
     };
 }
 

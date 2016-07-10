@@ -23,16 +23,16 @@ namespace honoka
         }
     }
 
-    void Epoller::add_listen(int listen_fd)
+    void Epoller::add_listen(std::shared_ptr<Socket> socket)
     {
-        listenning_fds_.insert(listen_fd);
-        add_wait(listen_fd);
+        listenning_fds_.insert(socket->get_fd());
+        add_wait(socket);
     }
 
-    void Epoller::del_listen(int listen_fd)
+    void Epoller::del_listen(std::shared_ptr<Socket> socket)
     {
-        reactor_->del_wait(listen_fd);
-        auto ite = listenning_fds_.find(listen_fd);
+        reactor_->del_wait(socket);
+        auto ite = listenning_fds_.find(socket->get_fd());
         listenning_fds_.erase(ite);
     }
 
@@ -42,14 +42,14 @@ namespace honoka
         ev.data.fd = listen_fd;
     }
 
-    void Epoller::add_wait(int listen_fd)
+    void Epoller::add_wait(std::shared_ptr<Socket> socket)
     {
         struct epoll_event ev;
         set_epoll_ev(ev);
 
         {
             std::lock_guard lock_(mutex_);
-            if(epoll_ctl(epoll_fd, EPOLL_CTL_ADD, listen_fd, &ev ) < 0 )
+            if(epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket->get_fd(), &ev ) < 0 )
             {
                 perror_and_exit("epoll_add()");
             }
@@ -58,14 +58,14 @@ namespace honoka
         ++cur_fds_num;
     }
 
-    void Epoller::del_wait(int listen_fd)
+    void Epoller::del_wait(std::shared_ptr<Socket> socket)
     {
         struct epoll_event ev;
         set_epoll_ev(ev);
 
         {
             std::lock_guard lock_(mutex_);
-            if(epoll_ctl(epoll_fd, EPOLL_CTL_MOD, listen_fd, &ev ) < 0 )
+            if(epoll_ctl(epoll_fd, EPOLL_CTL_MOD, socket->get_fd(), &ev ) < 0 )
             {
                 perror_and_exit("epoll_mod()");
             }
@@ -95,6 +95,9 @@ namespace honoka
             if (ite != listenning_fds_.end())
             {
                 int newfd;
+                struct sockaddr_in servaddr;
+                bzero(&servaddr, sizeof(struct sockaddr_in));
+                int len;
                 while ((newfd = accept(listen_fd,(struct sockaddr *) &servaddr,&len)) > 0)
                 {
                     setnonblocking(conn_fd);
@@ -109,8 +112,8 @@ namespace honoka
                             exit(EXIT_FAILURE);
                         }
                     }
-
-                    auto tmp_ev = reactor_->create_event(conn_fd, PASSIV_CONN);
+                    auto tmp_socket = std::make_shared<Socket>(newfd, servaddr, len);
+                    auto tmp_ev = reactor_->create_new_conn_event(tmp_socket, PASSIV_CONN);
                     thread_pool_->add_event(tmp_ev);
                 }
 

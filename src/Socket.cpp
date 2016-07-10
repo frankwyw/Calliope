@@ -1,13 +1,14 @@
 #include "Socket.h"
 
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <unistd.h>
 
 
 namespace honoka
 {
-    Socket::Socket(int fd):fd_(fd){}
+    Socket::Socket(int fd):fd_(fd), len(sizeof(struct sockaddr))
+    {
+        bzero(&servaddr, sizeof(struct sockaddr_in));
+    }
     Socket::Socket(int fd, struct sockaddr  servaddr, int len):fd_(fd), servaddr_(servaddr), len_(len){}
 
     Socket::~Socket(){ ::close(fd_); }
@@ -25,7 +26,7 @@ namespace honoka
     {
         len_ = len;
     }
-    
+
     int get_len()
     {
         return len_;
@@ -38,4 +39,26 @@ namespace honoka
         return tmp_fd;
     }
 
+   virtual int Socket::get_time()
+   {
+       return 0;
+   }
+
+   virtual void Socket::set_time()
+   {
+
+   }
+
+
+    Time_Socket::Time_Socket(int fd, int time):Socket(fd), time_(time){}
+    Time_Socket::Time_Socket(int fd, struct sockaddr  servaddr, int len, int time):Socket(fd, servaddr, len), time_(time){}
+
+    int Time_Socket::get_time()
+    {
+        return time_;
+    }
+    void Time_Socket::set_time(int time)
+    {
+        time = time;
+    }
 }

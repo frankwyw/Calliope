@@ -19,21 +19,12 @@ namespace honoka
     class Reactor;
     class Buffer;
 
-    class Connection
+    struct Connection
     {
     public:
-
-        std::shared_ptr<Socket> get_socket();
-
-        std::shared_ptr<Buffer> get_buffer();
-
-        void set_buffer set_buffer(std::shared_ptr<Buffer> buffer);
-
-        Connection(Reactor* reactor, std::shared_ptr<Socket> socket);
-    private:
-        std::shared_ptr<Socket> socket_;
-        std::shared_ptr<Buffer> buffer_;
-        Reactor* reactor_;
+        Connection(std::shared_ptr<Socket> socket);
+        std::shared_ptr<Socket> socket;
+        std::shared_ptr<Buffer> buffer;
 
     //    Socket socket_;
     //    std::vector<std::shared_ptr<Event>> cb;

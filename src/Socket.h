@@ -2,6 +2,9 @@
 #define __SOCKET__H__
 
 #include <memory>
+#include <sys/socket.h>
+#include <sys/types.h>
+
 namespace honoka
 {
     class Buffer;
@@ -10,7 +13,7 @@ namespace honoka
     {
     public:
         Socket(int fd);
-
+        Socket(int fd, struct sockaddr  servaddr, int len):fd_(fd), servaddr_(servaddr), len_(len);
 
         ~Socket();
 
@@ -26,10 +29,15 @@ namespace honoka
         {
             return fd_;
         }
+
+        virtual int get_time();
+        
+        virtual void set_time();
+
     private:
         int fd_;
 
-        struct sockaddr  servaddr_;
+        struct sockaddr_in  servaddr_;
         int len_;
 
     };
@@ -38,11 +46,13 @@ namespace honoka
     class Time_Socket : public Socket
     {
     public:
+        Time_Socket(int fd, int time);
+        Time_Socket(int fd, struct sockaddr  servaddr, int len, int time);
         int get_time();
-        void set_time();
+        void set_time(int time);
 
     private:
-        int time;
+        int time_;
 
     };
 }

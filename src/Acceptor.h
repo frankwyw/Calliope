@@ -25,7 +25,10 @@ namespace honoka
     //    void destroy();
 
     private:
-        int create_socket(int domain, int type);
+        std::shared_ptr<Socket> create_socket_and_bind(int address, int port, int domain, int type);
+        void listenning_socket(std::shared_ptr<Socket> tmp_socket);
+        void add_socket_listen(std::shared_ptr<Socket> tmp_socket);
+
 //      void add_wait(int config_endian_i);
 
         Configuration*  config_;

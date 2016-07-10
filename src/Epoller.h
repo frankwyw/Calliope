@@ -23,13 +23,13 @@ namespace honoka
         void init();
 
 
-        void add_listen(int fd);
-        void del_listen(int fd);
+        void add_listen(std::shared_ptr<Socket> socket);
+        void del_listen(std::shared_ptr<Socket> socket);
 
 
         //epoll_ctl
-        void add_wait(int fd);
-        void del_wait(int fd);
+        void add_wait(std::shared_ptr<Socket> socket);
+        void del_wait(std::shared_ptr<Socket> socket);
 
         //阻塞在此。
         //如果是有新链接，注册新链接事件，转发给reactor给线程池执行。调用conn_manage处理事件类型：创建新conn,加入新wait_fd。

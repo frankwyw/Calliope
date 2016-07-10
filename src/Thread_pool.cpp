@@ -23,7 +23,7 @@ namespace honoka
 	    event_queue.push(event);
 	}
 
-	Thread_pool::Thread_pool(int size = 1):size_(size)
+	Thread_pool::Thread_pool(int size):size_(size)
 	{
 	    for(int i = 0; i < size_; ++i)
 	    {

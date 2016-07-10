@@ -51,51 +51,52 @@ namespace honoka
 
     void Acceptor::add_socket(int address, int port, int domain, int type)
     {
+        auto tmp_socket = create_socket_and_bind(address, port, domain, type);
+        listenning_socket(tmp_socket);
+        add_socket_listen(tmp_socket);
+    }
+
+    std::shared_ptr<Socket> Acceptor::create_socket_and_bind(int address, int port, int domain, int type)
+    {
         int listen_fd = create_socket(domain, type);
         bind_socket_address(listen_fd, address, port, domain);
         listenning_socket(listen_fd);
         add_socket_listen(listen_fd);
-    }
 
-    int Acceptor::create_socket(int domain, int type)
-    {
         int listen_fd;
         if((listen_fd = ::socket(domain, type, 0)) == -1)
         {
             perror_and_exit("socket()");
         }
-        return listen_fd;
-    }
 
-    void Acceptor::bind_socket_address(int listen_fd, int addr, int port, int domain)
-    {
         struct sockaddr_in servaddr;
         bzero(&servaddr, sizeof(struct sockaddr_in));
         servaddr.sin_family = domain;
         servaddr.sin_addr.s_addr = htonl(addr);
         servaddr.sin_port = htons(port);
 
-        if(bind(listen_fd,(struct ::sockaddr*)(&servaddr), sizeof(struct sockaddr)) == -1)
+        auto tmp_socket = std::make_shared<Socket>(listen_fd, servaddr, sizeof(struct sockaddr));
+
+        if(bind(tmp->get_fd(),(struct ::sockaddr*)(tmp_socket->get_servaddr_ptr()), sizeof(struct sockaddr)) == -1)
         {
             perror_and_exit("bind()");
         }
+
     }
 
-    void Acceptor::listenning_socket(int listen_fd)
+    void Acceptor::listenning_socket(std::shared_ptr<Socket> tmp_socket)
     {
-        if(listen(listen_fd, MAXBACKLOG) == -1)
+        if(listen(tmp->get_fd(), MAXBACKLOG) == -1)
         {
             perror_and_exit("listen()");
         }
     }
 
-    void Acceptor::add_socket_listen(int listen_fd)
+    void Acceptor::add_socket_listen(std::shared_ptr<Socket> tmp_socket)
     {
         if(reactor_ != nullptr)
         {
-            auto tmp_socket = std::make_shared<Socket>(listen_fd);
             reactor_->add_listen(tmp_socket);
         }
-
     }
 }

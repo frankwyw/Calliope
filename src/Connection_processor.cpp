@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <glog/logging.h>
+
 #include "Event.h"
 #include "Reactor.h"
 #include "Connection.h"
@@ -35,7 +37,7 @@ namespace honoka
                 auto tmp_socket = conn->socket;
                 reactor_->add_wait(tmp_socket);
                 if(conn->buffer == nullptr)
-                    conn->set_buffer(Buffer(4000));
+                    conn->buffer = std::make_shared<Buffer>();
                 break;
             case READ_CB:
             case WRITE_CB:
@@ -57,31 +59,47 @@ namespace honoka
     //自定义链接为一个conn绑定一个buffer，或者默认指定为4000；
     void Connection_processor::passive_conn(std::shared_ptr<Connection> conn)
     {
-        conn->buffer = std::move(std::make_shared<Buffer>(4000));
+        conn->buffer = std::make_shared<Buffer>();
+        auto tmp_socket = conn->socket;
+        auto servaddr = tmp_socket->get_servaddr_ptr;
+        LOG(INFO)<<"passive new conn connect, ip:"<<servaddr->sin_addr.s_addr<<" port:"<<servaddr->sin_port;
     }
     void Connection_processor::active_conn(std::shared_ptr<Connection> conn)
     {
-        conn->buffer = std::move(std::make_shared<Buffer>(4000));
+        conn->buffer = std::make_shared<Buffer>();
+        auto tmp_socket = conn->socket;
+        auto servaddr = tmp_socket->get_servaddr_ptr;
+        LOG(INFO)<<"active new connect, ip:"<<servaddr->sin_addr.s_addr<<" port:"<<servaddr->sin_port;
     }
     void Connection_processor::read(std::shared_ptr<Connection> conn)
     {
-        
+        auto tmp_socket = conn->socket;
+        auto servaddr = tmp_socket->get_servaddr_ptr;
+        LOG(INFO)<<"read , ip:"<<servaddr->sin_addr.s_addr<<" port:"<<servaddr->sin_port;
     }
     void Connection_processor::write(std::shared_ptr<Connection> conn)
     {
-
+        auto tmp_socket = conn->socket;
+        auto servaddr = tmp_socket->get_servaddr_ptr;
+        LOG(INFO)<<"write , ip:"<<servaddr->sin_addr.s_addr<<" port:"<<servaddr->sin_port;
     }
     void Connection_processor::passive_close(std::shared_ptr<Connection> conn)
     {
-
+        auto tmp_socket = conn->socket;
+        auto servaddr = tmp_socket->get_servaddr_ptr;
+        LOG(INFO)<<"passive close connect, ip:"<<servaddr->sin_addr.s_addr<<" port:"<<servaddr->sin_port;
     }
     void Connection_processor::active_close(std::shared_ptr<Connection> conn)
     {
-
+        auto tmp_socket = conn->socket;
+        auto servaddr = tmp_socket->get_servaddr_ptr;
+        LOG(INFO)<<"active close connect, ip:"<<servaddr->sin_addr.s_addr<<" port:"<<servaddr->sin_port;
     }
     void Connection_processor::timeout(std::shared_ptr<Connection> conn)
     {
-
+        auto tmp_socket = conn->socket;
+        auto servaddr = tmp_socket->get_servaddr_ptr;
+        LOG(INFO)<<"close timeout, ip:"<<servaddr->sin_addr.s_addr<<" port:"<<servaddr->sin_port;
     }
 
     void set_cb(std::function<void (Connection_processor*, std::shared_ptr<Connection>)> cb, int i)

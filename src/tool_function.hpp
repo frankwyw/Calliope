@@ -19,7 +19,7 @@ namespace honoka
     {
         if(fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0)|O_NONBLOCK) == -1)
         {
-            perror("fcntl()");
+            LOG(ERROR)<<"setnonblocking() fail";
             return -1;
         }
         return 0;

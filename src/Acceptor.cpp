@@ -6,6 +6,8 @@
 #include <strings.h>
 #include <arpa/inet.h>
 
+#include <glog/logging.h>
+
 #include "tool_function.hpp"
 #include "Acceptor.h"
 #include "Configuration.h"
@@ -26,6 +28,7 @@ namespace honoka
         if(config_ == nullptr)
         {
             //输出到日志
+            LOG(ERROR)<<"Accepto::init() config == NULL";
             exit(1);
         }
 
@@ -66,7 +69,7 @@ namespace honoka
         int listen_fd;
         if((listen_fd = ::socket(domain, type, 0)) == -1)
         {
-            perror_and_exit("socket()");
+            LOG(ERROR)<<"Accepto::create_socket_and_bind() socket() fail";
         }
 
         struct sockaddr_in servaddr;
@@ -79,8 +82,10 @@ namespace honoka
 
         if(bind(tmp->get_fd(),(struct ::sockaddr*)(tmp_socket->get_servaddr_ptr()), sizeof(struct sockaddr)) == -1)
         {
-            perror_and_exit("bind()");
+            LOG(ERROR)<<"Accepto::create_socket_and_bind() bind() fail";
         }
+
+
 
     }
 
@@ -88,7 +93,7 @@ namespace honoka
     {
         if(listen(tmp->get_fd(), MAXBACKLOG) == -1)
         {
-            perror_and_exit("listen()");
+            LOG(ERROR)<<"Accepto::listenning_socket() listen() fail";
         }
     }
 
@@ -98,5 +103,12 @@ namespace honoka
         {
             reactor_->add_listen(tmp_socket);
         }
+        else
+        {
+            LOG(ERROR)<<"Acceptor::add_socket_listen() reacotr == NULL";
+        }
+
+        struct sockaddr_in* servaddr = tmp_socket->get_servaddr_ptr;
+        LOG(INFO)<<"new listen, ip:"<<servaddr->sin_addr.s_addr<<" port:"<<servaddr->sin_port;
     }
 }

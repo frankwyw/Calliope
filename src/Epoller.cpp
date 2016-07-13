@@ -5,6 +5,8 @@
 #include <memory>
 #include <sys/epoll.h>
 
+#include <glog/logging.h>
+
 #include "Event.h"
 #include "Reactor.h"
 #include "tool_function.hpp"
@@ -19,7 +21,7 @@ namespace honoka
         std::lock_guard lock_(mutex_);
         if((epoll_fd = epoll_create(MAXEPOLL)) == -1)
         {
-            perror_and_exit("epoll_create()");
+            LOG(ERROR)<<"Epoller::init() epoll_create() fail";
         }
     }
 
@@ -51,7 +53,7 @@ namespace honoka
             std::lock_guard lock_(mutex_);
             if(epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket->get_fd(), &ev ) < 0 )
             {
-                perror_and_exit("epoll_add()");
+                LOG(ERROR)<<"Epoller::add_wait() epoll_add() fail";
             }
         }
 
@@ -67,7 +69,7 @@ namespace honoka
             std::lock_guard lock_(mutex_);
             if(epoll_ctl(epoll_fd, EPOLL_CTL_MOD, socket->get_fd(), &ev ) < 0 )
             {
-                perror_and_exit("epoll_mod()");
+                LOG(ERROR)<<"Epoller::del_wait() epoll_mod() fail";
             }
         }
 
@@ -82,7 +84,8 @@ namespace honoka
             std::lock_guard lock_(mutex_);
             if( ( wait_fds_num = epoll_wait( epoll_fd, evs, cur_fds_num, -1 ) ) == -1 )
             {
-                perror_and_exit("epoll_wait");
+                LOG(ERROR)<<"Epoller::run() epoll_wait() fail";
+
             }
         }
 
@@ -108,7 +111,7 @@ namespace honoka
                         std::lock_guard lock_(mutex_);
                         if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, conn_fd,&ev) == -1)
                         {
-                            perror("epoll_ctl: add");
+                            LOG(ERROR)<<"Epoller::run() epoll_add() fail";
                             exit(EXIT_FAILURE);
                         }
                     }
@@ -121,7 +124,7 @@ namespace honoka
                 {
                     if (errno != EAGAIN && errno != ECONNABORTED
                             && errno != EPROTO && errno != EINTR)
-                        perror("accept");
+                            LOG(ERROR)<<"Epoller::run() accpet() fail";
                 }
                 continue;
             }

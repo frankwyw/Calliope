@@ -1,6 +1,9 @@
 #include "Configuration.h"
+
 #include <sstream>
 #include <fstream>
+
+#include <glog/logging.h>
 
 namespace honoka
 {
@@ -22,10 +25,11 @@ namespace honoka
         if(i >= config_["listen"].size())
         {
             //logstream
-            exit(1)
+            LOG(INFO)<<"Configuration::get_socket_config get i error";
+            return;
         }
 
-        return config_["listen"][0];
+        return config_["listen"][i];
     }
 
     int Configuration::get_socket_num()

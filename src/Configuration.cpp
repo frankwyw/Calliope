@@ -17,8 +17,18 @@ namespace honoka
         ss>>*this;
     }
 
-    void Configuration::init(std::string filename){}
-    void Configuration::init(char* filename){}
+    void Configuration::init(std::string filename)
+    {
+        std::fstream fs(filename);
+        fs>>*this;
+        fs.close();
+    }
+    void Configuration::init(char* filename)
+    {
+        std::fstream fs(filename);
+        fs>>*this;
+        fs.close();
+    }
 
     auto&& Configuration::get_socket_config(int i)
     {
@@ -26,7 +36,7 @@ namespace honoka
         {
             //logstream
             LOG(INFO)<<"Configuration::get_socket_config get i error";
-            return;
+            exit(1);
         }
 
         return config_["listen"][i];

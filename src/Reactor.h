@@ -4,6 +4,8 @@
 //#include <queue>
 #include <map>
 #include <memory>
+#include <mutex>
+#include <condition_variable>
 
 #include "Event_Type.hpp"
 
@@ -58,7 +60,10 @@ namespace honoka
         std::shared_ptr<Event> create_new_conn_event(std::shared_ptr<Socket> socket, Event_Type type)
     private:
 
-
+        bool is_stop;
+        bool is_close;
+        std::mutex mutex_;
+        std::condition_variable cv;
 
         Configuration*  config_;
         std::shared_ptr<Epoller> epoller_;

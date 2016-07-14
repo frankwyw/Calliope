@@ -36,7 +36,7 @@ namespace honoka
         //如果套接字可读，创建新读事件，如上。。。
         void run(int delay_time, Thread_pool* thread_pool_, std::map<int, std::shared_ptr<Connection>>&  socket_conns);
 
-
+        void close_listenning();
 
     private:
         void set_epoll_ev(struct epoll_event* ev);

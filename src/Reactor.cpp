@@ -17,30 +17,33 @@ namespace honoka
 {
     Reactor::Reactor(Configuration*  config, int thread_pool_size = 1):config_(config)
         ,epoller_(this), fd_sockets_conns(), thread_pool_(thread_pool_size),conn_processor_(this)
+        ,is_stop(false),mutex_(mutex),is_close(false), cv()
     {
 
     }
 
     void Reactor::stop()
     {
-
+        std::unique_lock<std::mutex> lock_(mutex_);
+        is_stop = true;
     }
 
     void Reactor::go_on()
     {
-
+        std::unique_lock<std::mutex> lock_(mutex_);
+        is_stop = false;
     }
 
     void Reactor::shutdown()
     {
-
+        std::unique_lock<std::mutex> lock_(mutex_);
+        is_close = true;
     }
 
     void Reactor::close_listenning()
     {
-
+        epoller_->close_listenning();
     }
-
 
 
     void Reactor::add_wait(std::shared_ptr<Socket> socket)
@@ -76,7 +79,16 @@ namespace honoka
     void Reactor::loop()
     {
         for(;;)
+        {
+            {
+                std::unique_lock<std::mutex> lock_(mutex_);
+                cv.wait(lock_, [](){return is_close || (!is_stop);});
+                if(is_close)
+                    break;
+            }
             epoller_.run(0, thread_pool_->get(), fd_sockets_conns);
+        }
+
     }
 
     std::shared_ptr<Event> Reactor::create_event(int fd, Event_Type type)

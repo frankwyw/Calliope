@@ -18,7 +18,7 @@ namespace honoka
 
     void Epoller::init()
     {
-        std::lock_guard lock_(mutex_);
+        std::lock_guard<std::mutex> lock_(mutex_);
         if((epoll_fd = epoll_create(MAXEPOLL)) == -1)
         {
             LOG(ERROR)<<"Epoller::init() epoll_create() fail";
@@ -50,7 +50,7 @@ namespace honoka
         set_epoll_ev(ev);
 
         {
-            std::lock_guard lock_(mutex_);
+            std::lock_guard<std::mutex> lock_(mutex_);
             if(epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket->get_fd(), &ev ) < 0 )
             {
                 LOG(ERROR)<<"Epoller::add_wait() epoll_add() fail";
@@ -66,7 +66,7 @@ namespace honoka
         set_epoll_ev(ev);
 
         {
-            std::lock_guard lock_(mutex_);
+            std::lock_guard<std::mutex> lock_(mutex_);
             if(epoll_ctl(epoll_fd, EPOLL_CTL_MOD, socket->get_fd(), &ev ) < 0 )
             {
                 LOG(ERROR)<<"Epoller::del_wait() epoll_mod() fail";
@@ -76,12 +76,27 @@ namespace honoka
         --cur_fds_num;
     }
 
+    void Epoller::close_listenning()
+    {
+        struct epoll_event ev;
+        set_epoll_ev(ev);
+
+        std::lock_guard<std::mutex> lock_(mutex_);
+        for(auto i : listenning_fds_)
+        {
+            if(epoll_ctl(epoll_fd, EPOLL_CTL_MOD, i, &ev ) < 0 )
+            {
+                LOG(ERROR)<<"Epoller::close_listenning() epoll_mod() fail";
+            }
+        }
+    }
+
     void Epoller::run(int delay_time, Thread_pool* thread_pool_, std::map<int, std::shared_ptr<Connection>>&  socket_conns)
     {
         struct epoll_event evs[MAXEPOLL];
         int wait_fds_num;
         {
-            std::lock_guard lock_(mutex_);
+            std::lock_guard<std::mutex> lock_(mutex_);
             if( ( wait_fds_num = epoll_wait( epoll_fd, evs, cur_fds_num, -1 ) ) == -1 )
             {
                 LOG(ERROR)<<"Epoller::run() epoll_wait() fail";

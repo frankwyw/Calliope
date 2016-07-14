@@ -11,34 +11,26 @@ namespace honoka
     {
     public:
         //config_()默认初始化
-        Tcp_server():config_(),reactor_(config_), acceptor_(reactor_, config_){}
+        Tcp_server();
 
-        Tcp_server(int thread_pool_size):config_(),reactor_(config_, thread_pool_size), acceptor_(reactor_, config_){}
+        Tcp_server(int thread_pool_size);
 
         //读取json，更新config，reactor,acceptor更新相关，包括各种事件的处理
         //acceptor设置监听，添加进epoller
-        void init();
+        void init(std::string configfilename);
 
         //
         void run();
 
 
-    private:
-        //信号处理
-        void reset_config()
-        {
-            reactor.stop();
-            reactor.close_listenning();
-            acceptor.init();
-            reactor.go_on();
-        }
+            //信号处理
+        void reset_config();
+
         void stop();
         void go_on();
-        void shutdown()
-        {
-            reactor.shutdown();
-            //
-        }
+        void shutdown();
+             
+    private:
 
         std::shared_ptr<Configuration> config_;
         std::shared_ptr<Reactor> reactor_;

@@ -3,22 +3,25 @@
 
 #include <vector>
 #include <mutex>
+#include <memory>
 
 
 namespace honoka
 {
+    class Socket;
+
     class Buffer
     {
     public:
         Buffer(std::size_t max_size_);
 
-        ~Buffer();
+        virtual ~Buffer();
 
         template<typename InputIt>
-        virtual std::size_t read(InputIt first, int size) = 0;
+        std::size_t read(InputIt first, int size);
 
         template<typename OutputIt>
-        virtual std::size_t write(OutputIt first, int size__) = 0;
+        std::size_t write(OutputIt first, int size__);
 
         virtual std::size_t read(std::shared_ptr<Socket> socket) = 0;
         virtual std::size_t write(std::shared_ptr<Socket> socket) = 0;
@@ -26,9 +29,9 @@ namespace honoka
         std::size_t size();
         std::size_t max_size();
 
-        virual bool empty();
+        bool empty();
         std::size_t left();
-    private:
+    protected:
         std::size_t max_size_;
         std::size_t size_;
 
@@ -41,28 +44,27 @@ namespace honoka
     public:
 
         Ring_buffer();
-        Ring_buffer(int size);
-        ~Ring_buffer();
+        Ring_buffer(std::size_t size__);
+        virtual ~Ring_buffer();
 
         template<typename InputIt>
-        virtual std::size_t read(InputIt first, int size);
+        std::size_t read(InputIt first, int size);
 
         template<typename OutputIt>
-        virtual std::size_t write(OutputIt first, int size__);
+        std::size_t write(OutputIt first, int size__);
 
-        virtual std::size_t read(std::shared_ptr<Socket> socket);
-        virtual std::size_t write(std::shared_ptr<Socket> socket);
+        std::size_t read(std::shared_ptr<Socket> socket);
+        std::size_t write(std::shared_ptr<Socket> socket);
 
-        virual bool empty();
     private:
 
-        std::vector<T> vec;
+        typename std::vector<T> vec_;
 
-        std::vector<T>::iterator op_;
-        std::vector<T>::iterator ed_;
+        typename std::vector<T>::iterator op_;
+        typename std::vector<T>::iterator ed_;
 
-        std::vector<T>::iterator cur_;
-        std::vector<T>::iterator data_op_;
+        typename std::vector<T>::iterator cur_;
+        typename std::vector<T>::iterator data_op_;
 
     };
 }

@@ -4,6 +4,9 @@
 
 #include <memory>
 #include <sys/epoll.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
 #include <glog/logging.h>
 
@@ -11,6 +14,8 @@
 #include "Reactor.h"
 #include "tool_function.hpp"
 #include "Event_Type.hpp"
+#include "Socket.h"
+#include "Thread_pool.h"
 
 namespace honoka
 {
@@ -38,16 +43,16 @@ namespace honoka
         listenning_fds_.erase(ite);
     }
 
-    void set_epoll_ev(struct epoll_event* ev)
+    void Epoller::set_epoll_ev(struct ::epoll_event* ev, int fd)
     {
-        ev.events = EPOLLIN | EPOLLET;
-        ev.data.fd = listen_fd;
+        ev->events = EPOLLIN | EPOLLET;
+        ev->data.fd = fd;
     }
 
     void Epoller::add_wait(std::shared_ptr<Socket> socket)
     {
-        struct epoll_event ev;
-        set_epoll_ev(ev);
+        struct ::epoll_event ev;
+        set_epoll_ev(&ev, socket->get_fd());
 
         {
             std::lock_guard<std::mutex> lock_(mutex_);
@@ -62,8 +67,8 @@ namespace honoka
 
     void Epoller::del_wait(std::shared_ptr<Socket> socket)
     {
-        struct epoll_event ev;
-        set_epoll_ev(ev);
+        struct ::epoll_event ev;
+        set_epoll_ev(&ev, socket->get_fd());
 
         {
             std::lock_guard<std::mutex> lock_(mutex_);
@@ -78,12 +83,13 @@ namespace honoka
 
     void Epoller::close_listenning()
     {
-        struct epoll_event ev;
-        set_epoll_ev(ev);
+        struct ::epoll_event ev;
+        
 
         std::lock_guard<std::mutex> lock_(mutex_);
         for(auto i : listenning_fds_)
         {
+  	    set_epoll_ev(&ev, i);
             if(epoll_ctl(epoll_fd, EPOLL_CTL_MOD, i, &ev ) < 0 )
             {
                 LOG(ERROR)<<"Epoller::close_listenning() epoll_mod() fail";
@@ -93,7 +99,7 @@ namespace honoka
 
     void Epoller::run(int delay_time, Thread_pool* thread_pool_, std::map<int, std::shared_ptr<Connection>>&  socket_conns)
     {
-        struct epoll_event evs[MAXEPOLL];
+        struct ::epoll_event evs[MAXEPOLL];
         int wait_fds_num;
         {
             std::lock_guard<std::mutex> lock_(mutex_);
@@ -108,22 +114,22 @@ namespace honoka
         for (int i = 0; i < wait_fds_num; ++i)
         {
             conn_fd = evs[i].data.fd;
-            auto ite =listenning_fds_.find(conn_fd)
+            auto ite =listenning_fds_.find(conn_fd);
             //处理新链接
             if (ite != listenning_fds_.end())
             {
                 int newfd;
-                struct sockaddr_in servaddr;
-                bzero(&servaddr, sizeof(struct sockaddr_in));
-                int len;
-                while ((newfd = accept(listen_fd,(struct sockaddr *) &servaddr,&len)) > 0)
+		auto servaddr = std::make_shared<struct sockaddr_in>();
+                bzero(servaddr.get(), sizeof(struct sockaddr_in));
+                socklen_t len;
+                while ((newfd = ::accept(conn_fd,(struct sockaddr *) servaddr.get(),&len)) > 0)
                 {
                     setnonblocking(conn_fd);
-
-                    set_epoll_ev(ev);
+		    struct ::epoll_event ev;
+        	    set_epoll_ev(&ev, conn_fd);
 
                     {
-                        std::lock_guard lock_(mutex_);
+                        std::lock_guard<std::mutex> lock_(mutex_);
                         if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, conn_fd,&ev) == -1)
                         {
                             LOG(ERROR)<<"Epoller::run() epoll_add() fail";

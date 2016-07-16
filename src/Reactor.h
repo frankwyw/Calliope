@@ -57,7 +57,7 @@ namespace honoka
 
         //添加event到Thread_pool处理
         std::shared_ptr<Event> create_event(int fd, Event_Type type);
-        std::shared_ptr<Event> create_new_conn_event(std::shared_ptr<Socket> socket, Event_Type type)
+        std::shared_ptr<Event> create_new_conn_event(std::shared_ptr<Socket> socket, Event_Type type);
     private:
 
         bool is_stop;

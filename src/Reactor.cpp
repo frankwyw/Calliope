@@ -16,8 +16,10 @@
 namespace honoka
 {
     Reactor::Reactor(Configuration*  config, int thread_pool_size = 1):config_(config)
-        ,epoller_(this), fd_sockets_conns(), thread_pool_(thread_pool_size),conn_processor_(this)
-        ,is_stop(false),mutex_(mutex),is_close(false), cv()
+        ,epoller_(std::make_shared<Epoller>(this)), fd_sockets_conns()
+	, thread_pool_(std::make_shared<Thread_pool>(thread_pool_size))
+	,conn_processor_(std::make_shared<Connection_processor>(this))
+	,is_stop(false),mutex_(),is_close(false), cv()
     {
 
     }
@@ -49,7 +51,7 @@ namespace honoka
     void Reactor::add_wait(std::shared_ptr<Socket> socket)
     {
         int fd = socket->get_fd();
-        epoller_->add_wait(fd);
+        epoller_->add_wait(socket);
         auto tmp_conn = std::make_shared<Connection>(socket);
         fd_sockets_conns.insert(std::make_pair(fd, tmp_conn));
     }
@@ -71,7 +73,7 @@ namespace honoka
     void Reactor::add_listen(std::shared_ptr<Socket> socket)
     {
         int fd = socket->get_fd();
-        epoller_->add_listen(fd);
+        epoller_->add_listen(socket);
         auto tmp_conn = std::make_shared<Connection>(socket);
         fd_sockets_conns.insert(std::make_pair(fd, tmp_conn));
     }
@@ -82,11 +84,11 @@ namespace honoka
         {
             {
                 std::unique_lock<std::mutex> lock_(mutex_);
-                cv.wait(lock_, [](){return is_close || (!is_stop);});
+                cv.wait(lock_, [this](){return is_close || (!is_stop);});
                 if(is_close)
                     break;
             }
-            epoller_.run(0, thread_pool_->get(), fd_sockets_conns);
+            epoller_->run(0, thread_pool_.get(), fd_sockets_conns);
         }
 
     }
@@ -110,7 +112,7 @@ namespace honoka
     {
 
         auto tmp_conn = std::make_shared<Connection>(socket);
-        auto ite = fd_sockets_conns.emplace(fd, tmp_conn).first;
+        auto ite = fd_sockets_conns.emplace(socket->get_fd(), tmp_conn).first;
         auto tmp_ev = std::make_shared<Event>(this, ite->second, type);
 
         return tmp_ev;
@@ -118,7 +120,7 @@ namespace honoka
 
     void Reactor::set_cb(std::function<void (Connection_processor*, std::shared_ptr<Connection>)> cb, Event_Type type)
     {
-        Connection_processor->set_cb(cb, static_cast<int>(type));
+        conn_processor_->set_cb(cb, static_cast<int>(type));
     }
 
     std::shared_ptr<Connection_processor> Reactor::get_conn_process()

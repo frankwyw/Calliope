@@ -1,6 +1,8 @@
 #ifndef __TCP__SERVER__H__
 #define __TCP__SERVER__H__
 
+#include <memory>
+
 namespace honoka
 {
     class Reactor;
@@ -10,8 +12,6 @@ namespace honoka
     class Tcp_server
     {
     public:
-        //config_()默认初始化
-        Tcp_server();
 
         Tcp_server(int thread_pool_size);
 
@@ -34,7 +34,7 @@ namespace honoka
 
         std::shared_ptr<Configuration> config_;
         std::shared_ptr<Reactor> reactor_;
-        std::shared_ptr<Accpetor> acceptor_;
+        std::shared_ptr<Acceptor> acceptor_;
     };
 }
 

@@ -8,19 +8,23 @@
 
 namespace honoka
 {
-    class Configuration : public nlohmann::json, public Singleton<Configuration>
+    class Configuration : public Singleton<Configuration>
     {
     public:
         Configuration();
         ~Configuration();
     //应当将其初始化为某个默认json
         void init();
-	    void init(std::string filename);
-	    void init(char* filename);
+	void init(std::string filename);
+	void init(char* filename);
 
         int get_socket_num();
 
-        auto&& get_socket_config(int i);
+        std::string get_ip(int i);
+	int get_port(int i);
+
+    private:
+	nlohmann::json json_;
     };
 }
 

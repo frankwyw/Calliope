@@ -1,10 +1,16 @@
+#include "Tcp_server.h"
+
+#include "Configuration.h"
+#include "Reactor.h"
+#include "Acceptor.h"
 
 
 namespace honoka
 {
-    Tcp_server::Tcp_server():config_(),reactor_(config_), acceptor_(reactor_, config_){}
-
-    Tcp_server::Tcp_server(int thread_pool_size):config_(),reactor_(config_, thread_pool_size), acceptor_(reactor_, config_){}
+    Tcp_server::Tcp_server(int thread_pool_size = 1):config_(std::make_shared<Configuration>())
+	,reactor_(std::make_shared<Reactor>(config_.get(), 1))
+	, acceptor_(std::make_shared<Acceptor>(reactor_.get(), config_.get()))
+	{}
 
     //读取json，更新config，reactor,acceptor更新相关，包括各种事件的处理
     //acceptor设置监听，添加进epoller

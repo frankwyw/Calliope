@@ -2,6 +2,7 @@
 #define __CONNECTION__PROCESSOR__H__
 
 #include <memory>
+#include <functional>
 #include "Event_Type.hpp"
 
 namespace honoka

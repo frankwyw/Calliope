@@ -6,12 +6,15 @@
 #include <memory>
 #include <mutex>
 
+struct epoll_event;
+
 namespace honoka
 {
     class Event;
     class Reactor;
     class Thread_pool;
     class Connection;
+    class Socket;
 
 
     class Epoller
@@ -39,7 +42,7 @@ namespace honoka
         void close_listenning();
 
     private:
-        void set_epoll_ev(struct epoll_event* ev);
+        void set_epoll_ev(struct ::epoll_event* ev, int fd);
 
         int epoll_fd;
         int cur_fds_num;
@@ -48,7 +51,7 @@ namespace honoka
 
         Reactor* reactor_;
 
-        std::mutex_;
+        std::mutex mutex_;
     };
 }
 

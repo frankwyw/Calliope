@@ -2,6 +2,7 @@
 #define __CONNECTION__H__
 
 #include <memory>
+#include "Buffer.hpp"
 
 //  0,passive connection
 //  1,active connection
@@ -14,17 +15,16 @@
 namespace honoka
 {
     class Socket;
-    class Event;
-    class Buffer;
-    class Reactor;
-    class Buffer;
+
 
     struct Connection
     {
     public:
-        Connection(std::shared_ptr<Socket> socket);
+        Connection(std::shared_ptr<Socket> socket_);
         std::shared_ptr<Socket> socket;
-        std::shared_ptr<Buffer> buffer;
+
+
+        std::shared_ptr<Ring_buffer<char>> buffer;
 
     //    Socket socket_;
     //    std::vector<std::shared_ptr<Event>> cb;

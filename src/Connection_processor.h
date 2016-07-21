@@ -15,24 +15,23 @@ namespace honoka
     public:
 
 
-        Connection_processor(Reactor* reactor);
+        Connection_processor();
         ~Connection_processor();
-	    void handle(std::shared_ptr<Connection> conn, Event_Type type);
+	    virtual void handle(Connection* conn, Event_Type type, Reactor* reactor);
 
-        void set_cb(std::function<void (Connection_processor*, std::shared_ptr<Connection>)> cb, int i);
+        void set_cb(std::function<void (Connection_processor*, Connection*)> cb, int i);
 
-    private:
-        void passive_conn(std::shared_ptr<Connection> conn);
-        void active_conn(std::shared_ptr<Connection> conn);
-        void read(std::shared_ptr<Connection> conn);
-        void write(std::shared_ptr<Connection> conn);
-        void passive_close(std::shared_ptr<Connection> conn);
-        void active_close(std::shared_ptr<Connection> conn);
-        void timeout(std::shared_ptr<Connection> conn);
+    protected:
+        void passive_conn(Connection* conn);
+        void active_conn(Connection* conn);
+        void read(Connection* conn);
+        void write(Connection* conn);
+        void passive_close(Connection* conn);
+        void active_close(Connection* conn);
+        void timeout(Connection* conn);
 
-        std::function<void (Connection_processor*, std::shared_ptr<Connection>)> cb_[7];
+        std::function<void (Connection_processor*, Connection*)> cb_[7];
 
-        Reactor* reactor_;
     };
 }
 

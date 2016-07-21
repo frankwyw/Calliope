@@ -26,11 +26,13 @@ namespace honoka
         Reactor(Configuration*  config_, int thread_pool_size);
         ~Reactor();
 
+        void init();
+
         //为epoller添加监听事件
         //新链接更新socket_conn
-        void add_wait(std::shared_ptr<Socket> socket);
+//        void add_wait(std::shared_ptr<Socket> socket);
 
-        void del_wait(std::shared_ptr<Socket> socket);
+ //       void del_wait(std::shared_ptr<Socket> socket);
 
 
         //添加监听套接字
@@ -39,7 +41,9 @@ namespace honoka
 
         void add_event(std::shared_ptr<Event> event);
 
-        void set_cb(std::function<void (Connection_processor*, std::shared_ptr<Connection>)> cb, Event_Type type);
+        void set_cb(std::function<void (Connection_processor*, Connection*)> cb, Event_Type type);
+
+        void set_conn_processor(std::shared_ptr<Connection_processor> conn_processor);
 
 
 //        std::shared_ptr<Event> create_event(std::shared_ptr<Socket> socket, Event_Type type);
@@ -66,11 +70,11 @@ namespace honoka
         std::condition_variable cv;
 
         Configuration*  config_;
+	      std::map<int, std::shared_ptr<Connection>>   fd_sockets_conns;
         std::shared_ptr<Epoller> epoller_;
 
-        std::map<int, std::shared_ptr<Connection>>   fd_sockets_conns;
+
         std::shared_ptr<Thread_pool> thread_pool_;
-//        std::priority_queue<Socket*> time_heap;
         std::shared_ptr<Connection_processor> conn_processor_;
     };
 }

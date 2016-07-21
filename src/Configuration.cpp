@@ -9,7 +9,14 @@ namespace honoka
 {
     Configuration::Configuration()
     {
-    	std::stringstream ss
+
+    }
+    Configuration::~Configuration(){}
+
+    void Configuration::init()
+    {
+	DLOG(INFO)<<"Configuration::init()";
+        std::stringstream ss
 	(R"(
 	{
     "base": {
@@ -24,35 +31,27 @@ namespace honoka
     },
     "listen": [
            {
-                "domain": "AF_INET",
-                "type": "socket_stream",
                 "nonblocking": true,
                 "ip": "127.0.0.1",
-                "port": "all"
+                "port": 10008
             }
-       ]
-}
+            ]
+        }
 	)");
 
 	ss >> json_;
     }
-    Configuration::~Configuration(){}
-
-    void Configuration::init()
-    {
-        std::string text;
-        std::stringstream ss(text);
-        ss>>json_;
-    }
 
     void Configuration::init(std::string filename)
     {
+        DLOG(INFO)<<"Configuration::init(std::string)";
         std::fstream fs(filename);
         fs>>json_;
         fs.close();
     }
     void Configuration::init(char* filename)
     {
+        DLOG(INFO)<<"Configuration::init(char*)";
         std::fstream fs(filename);
         fs>>json_;
         fs.close();
@@ -60,29 +59,30 @@ namespace honoka
 
     std::string Configuration::get_ip(int i)
     {
-	if(i >= json_["listen"].size())
+        DLOG(INFO)<<"Configuration::get_ip(int)";
+        if(i >= json_["listen"].size())
         {
             //logstream
-            LOG(INFO)<<"Configuration::get_socket_config get i error";
-            exit(1);
+            LOG(FATAL)<<"Configuration::get_socket_config get i error";
         }
 
-	return json_["listen"]["ip"];
+        return json_["listen"][0]["ip"];
     }
     int Configuration::get_port(int i)
     {
-	if(i >= json_["listen"].size())
+        DLOG(INFO)<<"Configuration::get_port(int)";
+        if(i >= json_["listen"].size())
         {
             //logstream
-            LOG(INFO)<<"Configuration::get_socket_config get i error";
-            exit(1);
+            LOG(FATAL)<<"Configuration::get_socket_config get i error";
         }
 
-	return json_["listen"]["port"];
+        return json_["listen"][0]["port"];
     }
 
     int Configuration::get_socket_num()
     {
+        DLOG(INFO)<<"Configuration::get_socket_num()";
         return json_["listen"].size();
     }
 }

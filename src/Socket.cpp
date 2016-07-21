@@ -4,6 +4,8 @@
 #include <netinet/in.h>
 #include <string.h>
 
+#include <iostream>
+
 
 namespace honoka
 {
@@ -12,9 +14,13 @@ namespace honoka
 	
     }
 
-    Socket::Socket(int fd, std::shared_ptr<struct sockaddr_in> servaddr, socklen_t len):fd_(fd), servaddr_(servaddr), len_(len){}
+    Socket::Socket(int fd, std::shared_ptr<struct sockaddr_in> servaddr, socklen_t len):fd_(fd), servaddr_(servaddr), len_(len)
+    {
 
-    Socket::~Socket(){ ::close(fd_); }
+    }
+
+
+    Socket::~Socket(){ ::close(fd_);std::cout<<"~Socket"<<std::endl; }
 
     void Socket::set_servaddr(std::shared_ptr<struct sockaddr_in> servaddr)
     {

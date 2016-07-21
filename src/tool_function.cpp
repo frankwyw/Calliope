@@ -1,11 +1,5 @@
-#ifndef __TOOL__FUNCTION__HPP__
-#define __TOOL__FUNCTION__HPP__
-
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-
+#include "tool_function.h"
+#include <glog/logging.h>
 
 namespace honoka
 {
@@ -25,4 +19,3 @@ namespace honoka
         return 0;
     }
 }
-#endif

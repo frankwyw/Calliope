@@ -9,31 +9,31 @@ namespace honoka
 
     Buffer::Buffer(std::size_t max_size = 4000):max_size_(max_size), size_(0), mutex_()
     {
-
+	std::cout<<"Buffer::Buffer"<<std::endl;
     }
 
 
     std::size_t Buffer::size()
     {
-        std::lock_guard<std::mutex> lock_(mutex_);
+	std::cout<<"Buffer::size"<<std::endl;
         return size_;
     }
 
     std::size_t Buffer::max_size()
     {
-        std::lock_guard<std::mutex> lock_(mutex_);
+	std::cout<<"Buffer::max_size"<<std::endl;
         return max_size_;
     }
 
     std::size_t Buffer::left()
     {
-        std::lock_guard<std::mutex> lock_(mutex_);
+	std::cout<<"Buffer::left"<<std::endl;
         return max_size_ - size_;
     }
 
     bool Buffer::empty()
     {
-        std::lock_guard<std::mutex> lock_(mutex_);
+	std::cout<<"Buffer::empty"<<std::endl;
         return size_ == 0;
     }
 

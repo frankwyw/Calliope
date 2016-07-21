@@ -1,6 +1,7 @@
 #include "Thread_pool.h"
 #include "Event.h"
 
+#include <glog/logging.h>
 
 namespace std
 {
@@ -16,11 +17,18 @@ namespace std
 namespace honoka
 {
 
-	Thread_pool::~Thread_pool(){}
+	Thread_pool::~Thread_pool()
+	{
+	    cond_var.notify_all();
+	    for(std::thread &thread_: threads)
+	        thread_.join();	
+	}
 
 	void Thread_pool::add_event(std::shared_ptr<Event> event)
 	{
+	    DLOG(INFO)<<" Thread_pool::add_event()";
 	    event_queue.push(event);
+	    cond_var.notify_one();
 	}
 
 	Thread_pool::Thread_pool(int size):size_(size)
@@ -52,18 +60,21 @@ namespace honoka
 
 	void Thread_pool::stop()
 	{
+	    DLOG(INFO)<<" Thread_pool::stop()";
 	    std::unique_lock<std::mutex> lock_(queue_mutex);
 	    is_stop = true;
 	}
 
 	void Thread_pool::go_on()
 	{
+	    DLOG(INFO)<<" Thread_pool::go_on()";
 	    std::unique_lock<std::mutex> lock_(queue_mutex);
 	    is_stop = false;
 	}
 
 	void Thread_pool::shutdown()
 	{
+	    DLOG(INFO)<<" Thread_pool::shutdown()";
 	    {
 	        std::unique_lock<std::mutex> lock_(queue_mutex);
 	        is_stop = true;

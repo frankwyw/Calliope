@@ -5,7 +5,7 @@
 
 #include <memory>
 
-#include "Event_Type.hpp"
+#include "../../src/Event_Type.hpp"
 
 //  0,passive connection
 //  1,active connection
@@ -39,10 +39,10 @@ namespace honoka
 	        return nice < e2.nice;
 	    }
 
-        Event(Reactor* reactor, Connection* conn, Event_Type type);
+        Event(Reactor* reactor, std::shared_ptr<Connection> conn, Event_Type type);
     private:
         std::function<void()> func_;
-        Connection* conn_;
+        std::shared_ptr<Connection> conn_;
         Reactor* reactor_;
         Connection_processor* conn_processor_ ;
         Event_Type type_;

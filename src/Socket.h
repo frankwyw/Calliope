@@ -4,21 +4,24 @@
 #include <memory>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <arpa/inet.h>
 
 namespace honoka
 {
-    class Buffer;
+
 
     class Socket
     {
     public:
-	Socket(int fd);
-        Socket(int fd, std::shared_ptr<struct sockaddr_in> servaddr, socklen_t len);
+        Socket(int fd);
+        Socket(int fd, std::shared_ptr<struct ::sockaddr_in> servaddr, socklen_t len);
+        Socket(Socket&&) = default;
+        Socket& operator=(Socket&&) = default;
 
         ~Socket();
 
 
-        void set_servaddr(std::shared_ptr<struct sockaddr_in> servaddr);
+        void set_servaddr(std::shared_ptr<struct ::sockaddr_in> servaddr);
         struct sockaddr_in* get_servaddr_ptr();
 
         void set_len(int len);
@@ -30,13 +33,13 @@ namespace honoka
         }
 
         virtual int get_time();
-        
+
         virtual void set_time();
 
     private:
         int fd_;
 
-        std::shared_ptr<struct sockaddr_in>  servaddr_;
+        std::shared_ptr<struct ::sockaddr_in>  servaddr_;
         socklen_t len_;
 
     };

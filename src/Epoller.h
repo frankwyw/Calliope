@@ -35,6 +35,8 @@ namespace honoka
         void run(int delay_time, Thread_pool* thread_pool_);
 
         void close_listenning();
+	
+	void del_wait_fd(int fd);
 
     private:
         void set_epoll_ev(struct ::epoll_event* ev, int fd);

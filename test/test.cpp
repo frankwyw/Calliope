@@ -62,6 +62,7 @@ public:
         	    case ACTIVE_CLOSE:
         	        break;
         	    case TIMEOUT:
+			reactor_->del_wait(tmp_socket->get_fd());
         	        break;
         	    default:
          	       break;

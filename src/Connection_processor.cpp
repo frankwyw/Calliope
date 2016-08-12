@@ -55,7 +55,7 @@ namespace honoka
                 //reactor_->del_listen(tmp_socket);
                 break;
             case TIMEOUT:
-                //reactor_->del_wait(tmp_socket);
+                reactor_->del_wait(tmp_socket->get_fd());
                 break;
             default:
                 break;

@@ -143,7 +143,7 @@ namespace honoka
 	    std::unique_lock<std::mutex> lock_(mutex_);
 //	        if(create_event_num != 0 || del_event_num != 0)
 //	    	cond_var.wait(lock_,[this]{ return this->create_event_num == 0 && del_event_num == 0; });
-            if( ( wait_fds_num = epoll_wait( epoll_fd, evs, cur_fds_num, -1 ) ) == -1 )
+            if( ( wait_fds_num = epoll_wait( epoll_fd, evs, cur_fds_num, 20 ) ) == -1 )
             {
 //                LOG(ERROR)<<"Epoller::run() epoll_wait() fail";
 //                DLOG(FATAL)<<"BUG";
@@ -172,6 +172,7 @@ namespace honoka
 
 
                     thread_pool_->add_event(tmp_ev);
+		    reactor_->install_Timing_wheel(new_fd);
                 }
 
                 if (conn_fd == -1)
@@ -183,24 +184,32 @@ namespace honoka
             }
 
             if(evs[i].events & EPOLLRDHUP)
-	        {
+	    {
                 char buf[2];
                 ::read(conn_fd, buf, 0);
                 del_wait(conn_fd);
                 auto tmp_ev = reactor_->create_event(conn_fd, PASSIVE_CLOSE);
                 thread_pool_->add_event(tmp_ev);
-	        }
+		reactor_->del_Timing_wheel(conn_fd);
+	    }
             else if (evs[i].events & EPOLLIN)
             {
                 auto tmp_ev = reactor_->create_event(conn_fd, READ_CB);
                 thread_pool_->add_event(tmp_ev);
+		reactor_->update_Timing_wheel(conn_fd);
             }
             else if(evs[i].events & EPOLLOUT)
             {
                 auto tmp_ev = reactor_->create_event(conn_fd, WRITE_CB);
                 thread_pool_->add_event(tmp_ev);
+		reactor_->update_Timing_wheel(conn_fd);
             }
         }
     }
+
+	void Epoller::del_wait_fd(int fd)
+	{
+		del_wait(fd);
+	}
 
 }

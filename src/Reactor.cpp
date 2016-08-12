@@ -4,6 +4,7 @@
 
 #include <glog/logging.h>
 
+
 #include "Epoller.h"
 #include "Configuration.h"
 #include "Thread_pool.h"
@@ -13,6 +14,10 @@
 #include "Connection.h"
 #include "Connection_processor.h"
 
+#include "Timing_wheel.h"
+#include "Timing_Event_Type.hpp"
+#include "Timing_event.h"
+
 
 
 namespace honoka
@@ -21,7 +26,7 @@ namespace honoka
     ,epoller_(std::make_shared<Epoller>(this, &fd_sockets_conns))
 	,thread_pool_(std::make_shared<Thread_pool>(thread_pool_size))
 	,conn_processor_(std::make_shared<Connection_processor>())
-	,is_stop(false),mutex_(),is_close(false), cv()
+	,is_stop(false),mutex_(),is_close(false), cv(),timing_wheel_(std::make_shared<struct Timing_wheel>(thread_pool_.get(), this))
     {
 
     }
@@ -166,4 +171,28 @@ namespace honoka
 
         return conn_processor_;
     }
+
+	void Reactor::install_Timing_wheel(int fd)
+	{
+		Timing_event tev(NEW_TIMING, fd);
+		timing_wheel_->add_timing_event(tev);
+	}
+	void Reactor::update_Timing_wheel(int fd)
+	{
+		Timing_event tev(UPDATE_TIMING, fd);
+		timing_wheel_->add_timing_event(tev);
+	}
+	void Reactor::del_Timing_wheel(int fd)
+	{
+		Timing_event tev(DEL_TIMING, fd);
+		timing_wheel_->add_timing_event(tev);
+	}
+	
+	void Reactor::del_wait(int fd)
+	{
+		epoller_->del_wait_fd(fd);
+	}
 }
+
+
+

@@ -18,6 +18,7 @@ namespace honoka
     class Event;
     class Connection;
     class Connection_processor;
+    class Timing_wheel;
 
     class Reactor
     {
@@ -33,7 +34,8 @@ namespace honoka
 //        void add_wait(std::shared_ptr<Socket> socket);
 
  //       void del_wait(std::shared_ptr<Socket> socket);
-
+	
+	void del_wait(int fd);
 
         //添加监听套接字
         void add_listen(std::shared_ptr<Socket> socket);
@@ -62,6 +64,10 @@ namespace honoka
         //添加event到Thread_pool处理
         std::shared_ptr<Event> create_event(int fd, Event_Type type);
         std::shared_ptr<Event> create_new_conn_event(std::shared_ptr<Socket> socket, Event_Type type);
+
+	void install_Timing_wheel(int fd);
+	void update_Timing_wheel(int fd);
+	void del_Timing_wheel(int fd);
     private:
 
         bool is_stop;
@@ -76,6 +82,8 @@ namespace honoka
 
         std::shared_ptr<Thread_pool> thread_pool_;
         std::shared_ptr<Connection_processor> conn_processor_;
+
+	std::shared_ptr<Timing_wheel> timing_wheel_;
     };
 }
 

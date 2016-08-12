@@ -1,20 +1,22 @@
 #include <glog/logging.h>
 #define DEBUG_MODE
 
-#include "../src/Tcp_server.h"
-#include "../src/Socket.h"
-#include "../src/Connection_processor.h"
+#include "Tcp_server.h"
+#include "Socket.h"
+#include "Connection_processor.h"
 #include <signal.h>
 #include <iostream>
 #include <functional>
-#include "../src/Connection.h"
-#include "../src/Buffer.hpp"
-#include "../src/Reactor.h"
+#include "Connection.h"
+#include "Buffer.hpp"
+#include "Reactor.h"
 
 honoka::Tcp_server* serv_ptr;
 
 void stop(int sig)
 {
+	if(sig == 0)
+		return;
 	if(serv_ptr != nullptr)
 		return;
 	serv_ptr->shutdown();
@@ -103,7 +105,16 @@ int main()
 	serv_ptr = &server;
 //	signal(SIGINT, stop);
 	std::string a = "init.json";
-	server.init(a);
+	try
+	{
+		server.init(a);
+	}
+	catch(std::exception& e)
+	{
+		std::cout<<e.what()<<std::endl;
+		exit(1);
+	}
+	
 	std::shared_ptr<Connection_processor> my_processor = std::make_shared<My_processor>();
 	server.set_conn_processor(my_processor);
 	server.run();

@@ -8,7 +8,7 @@
 namespace honoka
 {
     class Reactor;
-    class Connection;
+    struct Connection;
 
     class Connection_processor
     {

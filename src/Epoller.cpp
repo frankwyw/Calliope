@@ -21,8 +21,8 @@
 
 namespace honoka
 {
-    Epoller::Epoller(Reactor* reactor, std::map<int, std::shared_ptr<Connection>>* fd_sockets_conns):reactor_(reactor)
-	,cur_fds_num(0),listenning_fds_(), mutex_(), fd_sockets_conns_(fd_sockets_conns){}
+    Epoller::Epoller(Reactor* reactor, std::map<int, std::shared_ptr<Connection>>* fd_sockets_conns):cur_fds_num(0),listenning_fds_(),
+	reactor_(reactor), mutex_(), fd_sockets_conns_(fd_sockets_conns){}
 
     void Epoller::init()
     {
@@ -143,7 +143,7 @@ namespace honoka
 	    std::unique_lock<std::mutex> lock_(mutex_);
 //	        if(create_event_num != 0 || del_event_num != 0)
 //	    	cond_var.wait(lock_,[this]{ return this->create_event_num == 0 && del_event_num == 0; });
-            if( ( wait_fds_num = epoll_wait( epoll_fd, evs, cur_fds_num, 20 ) ) == -1 )
+            if( ( wait_fds_num = epoll_wait( epoll_fd, evs, cur_fds_num, delay_time ) ) == -1 )
             {
 //                LOG(ERROR)<<"Epoller::run() epoll_wait() fail";
 //                DLOG(FATAL)<<"BUG";
@@ -168,6 +168,10 @@ namespace honoka
                     add_wait(new_fd);
                     auto tmp_socket = std::make_shared<Socket>(new_fd, servaddr, len);
 
+		    if(reactor_ == nullptr)
+		    {
+			LOG(ERROR)<<"Epoller::run() reactor_ == nullptr";
+		    }
                     auto tmp_ev = reactor_->create_new_conn_event(tmp_socket, PASSIV_CONN);
 
 

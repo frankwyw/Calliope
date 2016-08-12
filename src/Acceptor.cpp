@@ -17,9 +17,9 @@
 
 namespace honoka
 {
-    Acceptor::Acceptor(Reactor* reactor, Configuration* config):reactor_(reactor), config_(config){}
+    Acceptor::Acceptor(Reactor* reactor, Configuration* config):config_(config), reactor_(reactor){}
 
-    Acceptor::Acceptor(Reactor* reactor):reactor_(reactor), config_(){}
+    Acceptor::Acceptor(Reactor* reactor):config_(nullptr),reactor_(reactor){}
 
     Acceptor::~Acceptor(){}
 
@@ -29,7 +29,7 @@ namespace honoka
         if(config_ == nullptr)
         {
             //输出到日志
-            LOG(FATAL)<<"Accepto::init() config == NULL";
+            LOG(ERROR)<<"Accepto::init() config == NULL";
 //            exit(1);
         }
 

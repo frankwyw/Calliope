@@ -14,7 +14,7 @@ namespace honoka
     class Event;
     class Reactor;
     class Thread_pool;
-    class Connection;
+    struct Connection;
     class Socket;
 
 

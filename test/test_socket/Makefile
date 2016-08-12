@@ -9,13 +9,13 @@ clean :
 
 
 
-Socket.o: $(HONOKA_SRCS)/Socket.cpp $(HONOKA_SRCS)/Socket.h
+Socket.o: $(HONOKA_SRCS)/Socket.cpp $(HONOKA_INCLUDES)/Socket.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(HONOKA_SRCS)/Socket.cpp 
 
-Socket_unittest.o : Socket_unittest.cpp $(HONOKA_SRCS)/Socket.h
+Socket_unittest.o : Socket_unittest.cpp $(HONOKA_INCLUDES)/Socket.h
 	$(CXX) $(CPPFALGS) $(CXXFLAGS) -c Socket_unittest.cpp 
 
-Buffer_stub.o : Buffer_stub.cpp $(HONOKA_SRCS)/Buffer.h
+Buffer_stub.o : Buffer_stub.cpp $(HONOKA_INCLUDES)/Buffer.h
 	$(CXX) $(CPPFALGS) $(CXXFLAGS) -c Buffer_stub.cpp 
 
 Socket_unittest: Socket.o Socket_unittest.o $(STUBS)

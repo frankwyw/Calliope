@@ -17,15 +17,14 @@ namespace honoka
     {
     public:
 
-        Ring_buffer():max_size_(4000), size_(0), mutex_(),vec_(4000),
-            op_(vec_.begin()), ed_(vec_.end()), cur_(op_), data_op_(op_)
+        Ring_buffer():vec_(4000),op_(vec_.begin()),ed_(vec_.end()),cur_(op_), 
+		data_op_(op_),max_size_(4000), size_(0), mutex_()
         {
 
         }
 
-        Ring_buffer(std::size_t max_size__)
-        :max_size_(max_size__), size_(0)
-    	, mutex_(),vec_(max_size__),op_(vec_.begin()), ed_(vec_.end()), cur_(op_), data_op_(op_)
+        Ring_buffer(std::size_t max_size__):vec_(max_size__),op_(vec_.begin()), ed_(vec_.end()), 
+		cur_(op_), data_op_(op_), max_size_(max_size__), size_(0),mutex_()
         {
 
         }

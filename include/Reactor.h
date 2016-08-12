@@ -16,7 +16,7 @@ namespace honoka
     class Thread_pool;
     class Socket;
     class Event;
-    class Connection;
+    struct Connection;
     class Connection_processor;
     class Timing_wheel;
 

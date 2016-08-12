@@ -16,7 +16,7 @@
 //  6,timeout
 namespace honoka
 {
-    class Connection;
+    struct Connection;
     class Reactor;
     class Connection_processor;
 

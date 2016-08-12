@@ -6,13 +6,13 @@ clean :
 
 OBJS = Timing_wheel.o Thread_pool_stub.o Reactor_stub.o Timing_wheel_unittest.o
 
-Timing_wheel.o: ${HONOKA_SRCS}/Timing_wheel.cpp
+Timing_wheel.o: ${HONOKA_SRCS}/Timing_wheel.cpp 
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ${HONOKA_SRCS}/Timing_wheel.cpp
 
-Thread_pool_stub.o: Thread_pool_stub.cpp ${HONOKA_SRCS}/Thread_pool.h
+Thread_pool_stub.o: Thread_pool_stub.cpp ${HONOKA_INCLUDES}/Thread_pool.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c Thread_pool_stub.cpp
 
-Reactor_stub.o: Reactor_stub.cpp ${HONOKA_SRCS}/Reactor.h
+Reactor_stub.o: Reactor_stub.cpp ${HONOKA_INCLUDES}/Reactor.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c Reactor_stub.cpp
 
 Timing_wheel_unittest.o:Timing_wheel_unittest.cpp

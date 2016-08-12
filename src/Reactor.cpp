@@ -18,15 +18,16 @@
 #include "Timing_Event_Type.hpp"
 #include "Timing_event.h"
 
+#define EPOLL_TIME 20
+
 
 
 namespace honoka
 {
-    Reactor::Reactor(Configuration*  config, int thread_pool_size = 1):config_(config), fd_sockets_conns()
-    ,epoller_(std::make_shared<Epoller>(this, &fd_sockets_conns))
-	,thread_pool_(std::make_shared<Thread_pool>(thread_pool_size))
-	,conn_processor_(std::make_shared<Connection_processor>())
-	,is_stop(false),mutex_(),is_close(false), cv(),timing_wheel_(std::make_shared<struct Timing_wheel>(thread_pool_.get(), this))
+    Reactor::Reactor(Configuration*  config, int thread_pool_size = 1):is_stop(false),is_close(false),mutex_(), cv(), 
+    config_(config), fd_sockets_conns(),epoller_(std::make_shared<Epoller>(this, &fd_sockets_conns)),
+    thread_pool_(std::make_shared<Thread_pool>(thread_pool_size)),conn_processor_(std::make_shared<Connection_processor>()),
+    timing_wheel_(std::make_shared<Timing_wheel>(thread_pool_.get(), this))
     {
 
     }
@@ -108,7 +109,7 @@ namespace honoka
     void Reactor::del_listen(std::shared_ptr<Socket> socket)
     {
         DLOG(INFO)<<" Reactor::del_listen(std::shared_ptr<Socket> socket)";
-        int fd = socket->get_fd();
+        //int fd = socket->get_fd();
         epoller_->del_listen(socket);
         auto ite = fd_sockets_conns.find(socket->get_fd());
         if(ite != fd_sockets_conns.end())
@@ -127,7 +128,7 @@ namespace honoka
                 if(is_close)
                     break;
             }
-            epoller_->run(0, thread_pool_.get());
+            epoller_->run(EPOLL_TIME, thread_pool_.get());
         }
 
     }
@@ -152,8 +153,7 @@ namespace honoka
     {
         DLOG(INFO)<<" Reactor::create_new_conn_event ";
         auto tmp_conn = std::make_shared<Connection>(socket);
-        auto ite2 = fd_sockets_conns.insert(std::make_pair(socket->get_fd(), tmp_conn));
-        auto ite = ite2.first;
+        fd_sockets_conns.insert(std::make_pair(socket->get_fd(), tmp_conn));
         auto tmp_ev = std::make_shared<Event>(this, tmp_conn.get(), type);
 
         return tmp_ev;

@@ -5,10 +5,10 @@ all : Configuration_unittest
 clean :
 	rm -f *.o
 
-Configuration.o: $(HONOKA_SRCS)/Configuration.cpp $(HONOKA_SRCS)/Configuration.h
+Configuration.o: $(HONOKA_SRCS)/Configuration.cpp $(HONOKA_INCLUDES)/Configuration.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(HONOKA_SRCS)/Configuration.cpp 
 
-Configuration_unittest.o : Configuration_unittest.cpp $(HONOKA_SRCS)/Configuration.h
+Configuration_unittest.o : Configuration_unittest.cpp $(HONOKA_INCLUDES)/Configuration.h
 	$(CXX) $(CPPFALGS) $(CXXFLAGS) -c Configuration_unittest.cpp 
 
 Configuration_unittest: Configuration.o Configuration_unittest.o 

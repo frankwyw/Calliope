@@ -5,10 +5,10 @@ all : Thread_pool_unittest
 clean :
 	rm -f *.o
 
-Thread_pool.o: $(HONOKA_SRCS)/Thread_pool.cpp $(HONOKA_SRCS)/Thread_pool.h $(HONOKA_SRCS)/Event.h
+Thread_pool.o: $(HONOKA_SRCS)/Thread_pool.cpp $(HONOKA_INCLUDES)/Thread_pool.h $(HONOKA_INCLUDES)/Event.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(HONOKA_SRCS)/Thread_pool.cpp 
 
-Thread_pool_unittest.o : Thread_pool_unittest.cpp $(HONOKA_SRCS)/Thread_pool.h Event.h
+Thread_pool_unittest.o : Thread_pool_unittest.cpp $(HONOKA_INCLUDES)/Thread_pool.h Event.h
 	$(CXX) $(CPPFALGS) $(CXXFLAGS) -c Thread_pool_unittest.cpp 
 
 Event.o: Event.cpp Event.h

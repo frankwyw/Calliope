@@ -10,6 +10,8 @@
 #include "Timing_Event_Type.hpp"
 #include "Timing_event.h"
 
+#include <glog/logging.h>
+
 //#include <iostream>
 
 #include <chrono>
@@ -43,8 +45,9 @@ honoka::Timing::~Timing(){}
 
 
 
-honoka::Timing_wheel::Timing_wheel(Thread_pool* thread_pool, Reactor* reactor):queue_(),mutex_(),
-	thread_pool_(thread_pool), reactor_(reactor),is_stop(false),vec_(),
+honoka::Timing_wheel::Timing_wheel(Thread_pool* thread_pool, Reactor* reactor):queue_(),mutex_(),ms_vec(MSVEC_MAX),s_vec(SVEC_MAX),
+	vec_(),cur_ms(std::begin(ms_vec)),cur_s(std::begin(s_vec)),cur_ms_num(INIT),cur_s_num(INIT),cur(std::begin(*cur_ms)),
+	thread_pool_(thread_pool), reactor_(reactor),is_stop(false),
 	thread_([this](){
 		for(;;)
 	{
@@ -61,14 +64,18 @@ honoka::Timing_wheel::Timing_wheel(Thread_pool* thread_pool, Reactor* reactor):q
 				{
 					case NEW_TIMING:
 						this->create_timing(tmp_event.fd_);
+						LOG(INFO)<<"fd new timing";
 						break;
 					case UPDATE_TIMING:
 						this->update_timing(tmp_event.fd_);
+						LOG(INFO)<<"fd update timing";
 						break;
 					case DEL_TIMING:
 						this->del_timing(tmp_event.fd_);
+						LOG(INFO)<<"fd del timing";
 						break;
 					default:
+						LOG(FATAL)<<"Timing_wheel unknown timing type";
 						break;
 				}
 			}		
@@ -81,6 +88,14 @@ honoka::Timing_wheel::Timing_wheel(Thread_pool* thread_pool, Reactor* reactor):q
 		while((fd = get_timeout()) > 0)
 		{
 			//std::cout<<fd<<"aa"<<std::endl;
+			if(reactor_ == nullptr)
+			{
+				LOG(ERROR)<<"Timing_wheel::Timing_wheel() reactor_ == nullptr";
+			}
+			if(thread_pool_ == nullptr)
+			{
+				LOG(ERROR)<<"Timing_wheel::Timing_wheel() thread_pool_ == nullptr";
+			}
 			auto tmp_event = reactor_->create_event(fd, TIMEOUT);
 			thread_pool_->add_event(tmp_event);
 			++cur;
@@ -89,14 +104,11 @@ honoka::Timing_wheel::Timing_wheel(Thread_pool* thread_pool, Reactor* reactor):q
 		cur_ms->clear();
 		advance();
 	}	
-	}),ms_vec(MSVEC_MAX),s_vec(SVEC_MAX)
+	})
 
 {
 	//std::vector<int> tmp_vec;
-	cur_s = std::begin(s_vec);
-	cur_ms = std::begin(ms_vec);
-	cur_ms_num = cur_s_num = INIT;
-	cur = std::begin(*cur_ms);
+	
 
 }
 
@@ -153,8 +165,18 @@ void honoka::Timing_wheel::run()
 		cur = std::begin(*cur_ms);
 		cur_ed = std::end(*cur_ms);
 		skip_within_time();
-		while(fd = get_timeout())
+		while((fd = get_timeout()) != 0)
 		{
+
+			if(reactor_ == nullptr)
+			{
+				LOG(ERROR)<<"Timing_wheel::Timing_wheel() reactor_ == nullptr";
+			}
+			if(thread_pool_ == nullptr)
+			{
+				LOG(ERROR)<<"Timing_wheel::Timing_wheel() thread_pool_ == nullptr";
+			}
+
 			auto tmp_event = reactor_->create_event(fd, TIMEOUT);
 			thread_pool_->add_event(tmp_event);
 			skip_within_time();
@@ -166,7 +188,8 @@ void honoka::Timing_wheel::run()
 
 void honoka::Timing_wheel::create_timing(int fd)
 {
-	if(vec_.size() < fd)
+	int size = vec_.size();
+	if(size < fd)
 	{	
 		vec_.resize(MORE_FD_SIZE);
 	}
@@ -229,7 +252,7 @@ void honoka::Timing_wheel::skip_within_time()
 
 void honoka::Timing_wheel::install_s_timing_to_ms()
 {
-	int len = cur_s->size();
+	//int len = cur_s->size();
 	cur = std::begin(*cur_s);
 	cur_ed = std::end(*cur_s);
 	for(; cur < cur_ed; ++cur )
